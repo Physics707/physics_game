@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Физики и открытия</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #e1f5fe);
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    h1 {
+      background: #1976d2;
+      color: white;
+      margin: 0;
+      padding: 20px;
+      font-size: 2em;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      padding: 20px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    .cell {
+      background: #2196f3;
+      color: white;
+      font-size: 20px;
+      padding: 30px;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: transform 0.2s;
+    }
+    .cell:hover {
+      background: #1565c0;
+      transform: scale(1.05);
+    }
+    .question-box {
+      display: none;
+      padding: 20px;
+      max-width: 700px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .options button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: #eeeeee;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .options button:hover {
+      background: #bdbdbd;
+    }
+    #timer {
+      font-size: 28px;
+      color: #d32f2f;
+      font-weight: bold;
+    }
+    .back {
+      margin-top: 20px;
+      font-size: 16px;
+      padding: 8px 16px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Физики и их великие открытия</h1>
+  <div class="grid" id="board"></div>
+
+  <div class="question-box" id="questionBox">
+    <div id="timer">30</div>
+    <h2 id="question"></h2>
+    <div class="options" id="options"></div>
+    <button class="back" onclick="showBoard()">Назад</button>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "Кто сформулировал закон всемирного тяготения?", options: ["А. Эйнштейн", "И. Ньютон", "Г. Галилей", "Н. Коперник"], correct: "И. Ньютон" },
+      { question: "Кто объяснил фотоэффект?", options: ["М. Планк", "А. Эйнштейн", "Н. Бор", "Р. Фейнман"], correct: "А. Эйнштейн" },
+      { question: "Кто открыл электромагнитную индукцию?", options: ["М. Фарадей", "А. Ампер", "Дж. Максвелл", "Х. Эрстед"], correct: "М. Фарадей" },
+      { question: "Кто ввёл закон для тока, напряжения и сопротивления?", options: ["А. Вольта", "Г. Ом", "Н. Тесла", "Р. Гук"], correct: "Г. Ом" },
+      { question: "Кто автор гелиоцентрической системы мира?", options: ["Г. Галилей", "И. Кеплер", "Н. Коперник", "А. Эйнштейн"], correct: "Н. Коперник" },
+      { question: "Кто открыл радиоактивность?", options: ["М. Кюри", "А. Беккерель", "Э. Резерфорд", "И. Кюри"], correct: "А. Беккерель" },
+      { question: "Кто построил первые маятниковые часы?", options: ["Г. Галилей", "И. Ньютон", "Х. Гюйгенс", "И. Кеплер"], correct: "Х. Гюйгенс" },
+      { question: "Кто открыл спектральный анализ?", options: ["Кирхгоф", "Планк", "Бор", "Гейзенберг"], correct: "Кирхгоф" },
+      { question: "Кто открыл атомное ядро?", options: ["Резерфорд", "Томсон", "Беккерель", "Шрёдингер"], correct: "Резерфорд" },
+      { question: "Кто ввёл понятие квант?", options: ["Планк", "Эйнштейн", "Бор", "Ферми"], correct: "Планк" },
+      { question: "Кто изобрёл громоотвод?", options: ["Франклин", "Ом", "Фарадей", "Ньютон"], correct: "Франклин" },
+      { question: "Кто создал первую теорию относительности?", options: ["Эйнштейн", "Максвелл", "Бор", "Фейнман"], correct: "Эйнштейн" },
+      { question: "Кто описал законы движения планет?", options: ["Коперник", "Кеплер", "Галилей", "Птолемей"], correct: "Кеплер" },
+      { question: "Кто обнаружил электроны?", options: ["Томсон", "Фарадей", "Беккерель", "Ньютон"], correct: "Томсон" },
+      { question: "Кто предложил модель атома с орбитами?", options: ["Бор", "Планк", "Резерфорд", "Эйнштейн"], correct: "Бор" },
+      { question: "Кто основал квантовую механику?", options: ["Гейзенберг", "Шрёдингер", "Бор", "Фейнман"], correct: "Гейзенберг" },
+      { question: "Кто открыл принцип неопределённости?", options: ["Гейзенберг", "Шрёдингер", "Бор", "Ферми"], correct: "Гейзенберг" },
+      { question: "Кто предложил уравнение волны материи?", options: ["Шрёдингер", "Планк", "Бор", "Фейнман"], correct: "Шрёдингер" },
+      { question: "Кто открыл нейтрон?", options: ["Чедвик", "Резерфорд", "Бор", "Гейзенберг"], correct: "Чедвик" },
+      { question: "Кто основал электродинамику?", options: ["Максвелл", "Фарадей", "Ом", "Эйнштейн"], correct: "Максвелл" },
+      { question: "Кто первым ввёл понятие электрического поля?", options: ["Фарадей", "Максвелл", "Ом", "Ампер"], correct: "Фарадей" },
+      { question: "Кто открыл фотоны?", options: ["Эйнштейн", "Бор", "Шрёдингер", "Ферми"], correct: "Эйнштейн" },
+      { question: "Кто описал эффект туннелирования?", options: ["Гамов", "Шрёдингер", "Гейзенберг", "Бор"], correct: "Гамов" },
+      { question: "Кто открыл сверхпроводимость?", options: ["Камерлинг Оннес", "Ферми", "Планк", "Бор"], correct: "Камерлинг Оннес" },
+      { question: "Кто дал имя элементарной частицы "фермион"?", options: ["Ферми", "Паули", "Гейзенберг", "Шрёдингер"], correct: "Ферми" }
+    ];
+
+    const board = document.getElementById("board");
+    const questionBox = document.getElementById("questionBox");
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const timerEl = document.getElementById("timer");
+
+    let timerInterval;
+    let currentQuestion = 0;
+
+    function showBoard() {
+      questionBox.style.display = "none";
+      board.style.display = "grid";
+      clearInterval(timerInterval);
+      timerEl.textContent = "30";
+    }
+
+    function showQuestion(index) {
+      currentQuestion = index;
+      const q = questions[index];
+      questionEl.textContent = q.question;
+      optionsEl.innerHTML = "";
+      q.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => {
+          btn.style.background = option === q.correct ? "#66bb6a" : "#ef5350";
+          clearInterval(timerInterval);
+        };
+        optionsEl.appendChild(btn);
+      });
+      board.style.display = "none";
+      questionBox.style.display = "block";
+      startTimer();
+    }
+
+    function startTimer() {
+      let time = 30;
+      timerEl.textContent = time;
+      timerInterval = setInterval(() => {
+        time--;
+        timerEl.textContent = time;
+        if (time === 0) {
+          clearInterval(timerInterval);
+          alert("Время вышло!");
+        }
+      }, 1000);
+    }
+
+    for (let i = 0; i < questions.length; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.textContent = i + 1;
+      cell.onclick = () => showQuestion(i);
+      board.appendChild(cell);
+    }
+  </script>
+</body>
+</html>
